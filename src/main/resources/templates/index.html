@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ResidencyFix | Hostel Management</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="landing-page">
+    <header class="site-header">
+        <div class="container nav-bar">
+            <div class="brand-wrap">
+                <div class="brand-mark">R</div>
+                <span>ResidencyFix</span>
+            </div>
+            <nav class="main-nav">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="/login">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="home">
+        <section class="hero-section">
+            <div class="container hero-grid">
+                <div class="hero-copy">
+                    <p class="eyebrow">Hostel care and operations</p>
+                    <h1>Smart support for hostel residents and staff.</h1>
+                    <p>
+                        ResidencyFix is built for student hostels and residential accommodations, helping residents report room,
+                        maintenance, and cleanliness issues while staff and wardens track timely resolution through a single dashboard.
+                    </p>
+                    <div class="actions">
+                        <a class="btn primary" href="/login">Access Dashboard</a>
+                        <a class="btn secondary" href="/complaints/new">Raise Complaint</a>
+                    </div>
+                    <div class="trust-row">
+                        <div>
+                            <strong>350+</strong>
+                            <span>Residents served</span>
+                        </div>
+                        <div>
+                            <strong>24/7</strong>
+                            <span>Monitoring</span>
+                        </div>
+                        <div>
+                            <strong>96%</strong>
+                            <span>Issue visibility</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="image-card main-image">
+                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=80" alt="Hostel building exterior"/>
+                    </div>
+                    <div class="floating-card">
+                        <span class="pill success">Daily hostel support</span>
+                        <h3>Complaints queue</h3>
+                        <p>Room repairs • Cleaning • Water and electrical issues</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about-section">
+            <div class="container about-grid">
+                <div class="about-image-panel">
+                    <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80" alt="Hostel room interiors"/>
+                </div>
+                <div class="about-copy">
+                    <p class="eyebrow">About ResidencyFix</p>
+                    <h2>Built to keep hostel life safe, clean, and well managed.</h2>
+                    <p>
+                        ResidencyFix helps hostel residents, caretakers, and wardens stay connected around daily issues such as plumbing,
+                        electrical faults, room maintenance, housekeeping, and common-area safety concerns.
+                    </p>
+                    <ul class="check-list">
+                        <li>Resident complaint logging for rooms, facilities, and shared spaces</li>
+                        <li>Maintenance coordination for faster service follow-up</li>
+                        <li>Warden oversight for recurring problems and service quality</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="feature-section">
+            <div class="container">
+                <div class="section-heading">
+                    <p class="eyebrow">Why choose us</p>
+                    <h2>Everything your property team needs in one place.</h2>
+                </div>
+
+                <div class="feature-grid">
+                    <article class="feature-card">
+                        <div class="icon-box">🏠</div>
+                        <h3>Room support</h3>
+                        <p>Residents can report room issues such as plumbing, electrical faults, or housekeeping problems with ease.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon-box">🛠️</div>
+                        <h3>Service tracking</h3>
+                        <p>Staff can organize maintenance tasks, monitor progress, and close complaints once work is completed.</p>
+                    </article>
+                    <article class="feature-card">
+                        <div class="icon-box">📊</div>
+                        <h3>Warden overview</h3>
+                        <p>Wardens can review overdue complaints, resolve bottlenecks, and monitor hostel service standards.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

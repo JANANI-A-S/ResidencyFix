@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ResidencyFix | Complaints</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">ResidencyFix</div>
+            <nav>
+                <a href="/dashboard/resident">Dashboard</a>
+                <a href="/complaints">My Complaints</a>
+                <a href="/complaints/new">Raise Complaint</a>
+                <a href="/login">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page">
+        <div class="page-header">
+            <div>
+                <p class="eyebrow">Complaint management</p>
+                <h1>Resident and staff complaint queue</h1>
+            </div>
+            <a class="btn primary" href="/complaints/new">New Complaint</a>
+        </div>
+
+        <form class="filter-bar" method="get" action="/complaints">
+            <select name="status">
+                <option value="">All Statuses</option>
+                <option th:each="s : ${statuses}"
+                        th:value="${s}"
+                        th:text="${s.label}"
+                        th:selected="${s == selectedStatus}">
+                </option>
+            </select>
+            <input type="text" name="search" th:value="${search}" placeholder="Search resident name..." />
+            <button type="submit" class="btn secondary">Filter</button>
+        </form>
+
+        <div class="table-card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Resident</th>
+                        <th>Room</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Age</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="complaint : ${complaints}">
+                        <td th:text="${complaint.id}">1</td>
+                        <td>
+                            <span th:text="${complaint.residentName}">John</span>
+                            <span class="overdue-badge" th:if="${complaint.overdue}">Overdue</span>
+                        </td>
+                        <td th:text="${complaint.roomNumber}">A-101</td>
+                        <td th:text="${complaint.category}">Plumbing</td>
+                        <td>
+                            <span class="badge status-badge" th:text="${complaint.statusLabel}">Open</span>
+                        </td>
+                        <td th:text="${complaint.daysOpen + 'd'}">0d</td>
+                        <td class="actions-cell">
+                            <a th:href="@{'/complaints/' + ${complaint.id}}">View</a>
+                            <a th:href="@{'/complaints/' + ${complaint.id} + '/edit'}">Edit</a>
+                            <form th:action="@{'/complaints/' + ${complaint.id} + '/delete'}" method="post">
+                                <button type="submit" class="link-btn">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

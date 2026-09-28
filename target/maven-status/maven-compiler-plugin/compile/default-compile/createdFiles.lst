@@ -1,0 +1,10 @@
+com\residencyfix\dto\ComplaintDTO.class
+com\residencyfix\controller\HomeController.class
+com\residencyfix\service\ComplaintService.class
+com\residencyfix\controller\ApiComplaintController.class
+com\residencyfix\controller\ComplaintController.class
+com\residencyfix\repository\ComplaintRepository.class
+com\residencyfix\model\ComplaintStatus.class
+com\residencyfix\ResidencyFixApplication.class
+com\residencyfix\model\Complaint.class
+com\residencyfix\service\impl\ComplaintServiceImpl.class

@@ -1,0 +1,57 @@
+{
+  "info": {
+    "name": "ResidencyFix API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get all complaints",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/complaints"
+      }
+    },
+    {
+      "name": "Create complaint",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"residentName\": \"Aarav Sharma\",\n  \"roomNumber\": \"B-204\",\n  \"category\": \"Plumbing\",\n  \"description\": \"Water leakage from bathroom pipe.\",\n  \"status\": \"NEW\"\n}"
+        },
+        "url": "http://localhost:8080/api/complaints"
+      }
+    },
+    {
+      "name": "Get complaint by id",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/complaints/1"
+      }
+    },
+    {
+      "name": "Update complaint",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"residentName\": \"Aarav Sharma\",\n  \"roomNumber\": \"B-204\",\n  \"category\": \"Plumbing\",\n  \"description\": \"Water leakage fixed after maintenance visit.\",\n  \"status\": \"IN_PROGRESS\"\n}"
+        },
+        "url": "http://localhost:8080/api/complaints/1"
+      }
+    },
+    {
+      "name": "Delete complaint",
+      "request": {
+        "method": "DELETE",
+        "url": "http://localhost:8080/api/complaints/1"
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ResidencyFix | Complaint Details</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">ResidencyFix</div>
+            <nav>
+                <a href="/dashboard/resident">Dashboard</a>
+                <a href="/complaints">Complaint Log</a>
+                <a href="/complaints/new">Raise Complaint</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container form-page">
+        <div class="card details-card">
+            <p class="eyebrow">Case details</p>
+            <h1>Complaint #<span th:text="${complaint.id}"></span></h1>
+            <div class="detail-row"><strong>Resident:</strong> <span th:text="${complaint.residentName}"></span></div>
+            <div class="detail-row"><strong>Room:</strong> <span th:text="${complaint.roomNumber}"></span></div>
+            <div class="detail-row"><strong>Category:</strong> <span th:text="${complaint.category}"></span></div>
+            <div class="detail-row"><strong>Status:</strong> <span class="badge" th:text="${complaint.statusLabel}"></span></div>
+            <div class="detail-row"><strong>Days open:</strong> <span th:text="${complaint.daysOpen + ' days'}"></span></div>
+            <div class="detail-row"><strong>Created:</strong> <span th:text="${#temporals.format(complaint.createdAt, 'dd-MM-yyyy HH:mm')}" ></span></div>
+            <div class="detail-row"><strong>Status note:</strong></div>
+            <p class="description-box" th:text="${complaint.statusNote != null and !#strings.isEmpty(complaint.statusNote) ? complaint.statusNote : 'No staff update note added yet.'}"></p>
+            <div class="detail-row"><strong>Description:</strong></div>
+            <p class="description-box" th:text="${complaint.description}"></p>
+
+            <div class="form-actions">
+                <a class="btn primary" th:href="@{'/complaints/' + ${complaint.id} + '/status'}">Update Status</a>
+                <a class="btn secondary" href="/complaints">Back to list</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

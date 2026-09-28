@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ResidencyFix | Complaint Form</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">ResidencyFix</div>
+            <nav>
+                <a href="/dashboard/resident">Dashboard</a>
+                <a href="/complaints">My Complaints</a>
+                <a href="/complaints/new">Raise Complaint</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container form-page">
+        <div class="card">
+            <p class="eyebrow">Service request</p>
+            <h1>Raise a maintenance complaint</h1>
+
+            <form th:action="${complaintDTO.id != null and mode == 'staff'} ? @{/complaints/{id}/status(id=${complaintDTO.id})} : @{/complaints}"
+                  method="post"
+                  th:object="${complaintDTO}">
+
+                <div class="field-grid">
+                    <div class="form-group" th:if="${showResidentName != null and showResidentName}">
+                        <label>Resident Name</label>
+                        <input type="text" th:field="*{residentName}" placeholder="Enter resident name">
+                        <small class="error" th:if="${#fields.hasErrors('residentName')}" th:errors="*{residentName}"></small>
+                    </div>
+
+                    <div class="form-group" th:if="${showRoomNumber == null or showRoomNumber}">
+                        <label>Room Number</label>
+                        <input type="text" th:field="*{roomNumber}" placeholder="Example: A-101">
+                        <small class="error" th:if="${#fields.hasErrors('roomNumber')}" th:errors="*{roomNumber}"></small>
+                    </div>
+
+                    <div class="form-group" th:if="${showCategory == null or showCategory}">
+                        <label>Category</label>
+                        <input type="text" th:field="*{category}" placeholder="Plumbing / Electrical / Cleaning">
+                        <small class="error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></small>
+                    </div>
+
+                    <div class="form-group" th:if="${showStatus != null and showStatus}">
+                        <label>Status</label>
+                        <select th:field="*{status}">
+                            <option th:each="status : ${statuses}" th:value="${status}" th:text="${status.label}"></option>
+                        </select>
+                        <small class="error" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></small>
+                    </div>
+                </div>
+
+                <div class="form-group full-width" th:if="${showDescription == null or showDescription}">
+                    <label>Description</label>
+                    <textarea th:field="*{description}" rows="6" placeholder="Describe the issue in detail..."></textarea>
+                    <small class="error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></small>
+                </div>
+
+                <div class="form-group full-width" th:if="${showStatus != null and showStatus}">
+                    <label>Status Note</label>
+                    <textarea th:field="*{statusNote}" rows="4" placeholder="Add staff update, action taken, or follow-up notes..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn primary" type="submit" th:text="${mode == 'staff'} ? 'Update Status' : 'Save Complaint'">Save Complaint</button>
+                    <a class="btn secondary" href="/dashboard/resident" th:if="${mode != 'staff'}">Cancel</a>
+                    <a class="btn secondary" href="/dashboard/staff" th:if="${mode == 'staff'}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

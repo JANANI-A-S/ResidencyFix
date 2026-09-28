@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ResidencyFix | Profile</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="app-shell">
+    <header class="topbar">
+        <div class="container nav">
+            <div class="brand">ResidencyFix</div>
+            <nav>
+                <a href="/dashboard/resident">Dashboard</a>
+                <a href="/complaints">Complaints</a>
+                <a href="/profile">Profile</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container form-page">
+        <div class="card details-card">
+            <p class="eyebrow">Account</p>
+            <h1>Profile</h1>
+            <div class="detail-row"><strong>Name:</strong> <span th:text="${profileName}">Aisha Patel</span></div>
+            <div class="detail-row"><strong>Role:</strong> <span class="badge" th:text="${profileRole}">Resident</span></div>
+            <div class="detail-row"><strong>Residence:</strong> <span th:text="${profileUnit}">Block A / Unit 204</span></div>
+            <div class="detail-row"><strong>Contact:</strong> <span>+65 9123 4567</span></div>
+            <div class="detail-row"><strong>Email:</strong> <span>aisha.patel@residencyfix.com</span></div>
+            <div class="form-actions">
+                <a class="btn primary" href="/dashboard/resident">Back to dashboard</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
