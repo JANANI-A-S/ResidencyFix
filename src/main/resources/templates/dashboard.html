@@ -2,89 +2,211 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>ResidencyFix | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'ResidencyFix | ' + ${roleTitle} + ' Dashboard'">ResidencyFix | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-shell">
     <header class="topbar">
         <div class="container nav">
-            <div class="brand">ResidencyFix</div>
-            <nav>
-                <a th:href="@{'/dashboard/' + ${role}}">Dashboard</a>
+            <div class="brand-wrap">
+                <a href="/" class="brand-link">
+                    <div class="brand-mark"></div>
+                    <span class="brand-text">ResidencyFix</span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <a th:href="@{'/dashboard/' + ${role}}" class="active">Dashboard</a>
                 <a href="/complaints">Complaint Queue</a>
-                <a href="/complaints/new">Raise Complaint</a>
+                <a href="/complaints/new" th:if="${role == 'resident' or role == 'warden'}">Raise Complaint</a>
                 <a href="/profile">Profile</a>
+                <div class="user-role-badge" th:classappend="'role-' + ${role}">
+                    <span class="dot"></span>
+                    <span th:text="${roleTitle}">Resident</span>
+                </div>
+                <a href="/logout" class="nav-logout-btn">Logout</a>
             </nav>
         </div>
     </header>
 
     <main class="container page">
+        <!-- Top banner with role context -->
         <div class="page-header">
             <div>
-                <p class="eyebrow">Role-based overview</p>
+                <p class="eyebrow" th:text="${role == 'resident' ? 'Resident Workspace' : (role == 'staff' ? 'Hostel Facility Operations' : 'Hostel Administration & Oversight')}">Hostel Workspace</p>
                 <h1 th:text="${roleTitle + ' Dashboard'}">Resident Dashboard</h1>
+                <p class="header-subtext" th:if="${role == 'resident'}">
+                    Report and track your room maintenance requests for <strong>Plumbing</strong>, <strong>Electrical</strong>, and <strong>Cleaning</strong> services.
+                </p>
+                <p class="header-subtext" th:if="${role == 'staff'}">
+                    Review assigned room maintenance jobs, update task progress, and record repair notes until completion.
+                </p>
+                <p class="header-subtext" th:if="${role == 'warden'}">
+                    Central administration of all residential complaints, tracking overdue issues and monitoring repair timelines.
+                </p>
             </div>
-            <a class="btn primary" href="/complaints/new">+ Raise Complaint</a>
+            <div class="header-actions">
+                <a class="btn primary" href="/complaints/new" th:if="${role == 'resident' or role == 'warden'}">+ Raise Complaint</a>
+                <a class="btn secondary" href="/complaints">View All Complaints</a>
+            </div>
         </div>
 
+        <!-- Role Switcher Quick Bar -->
+        <div class="role-switch-bar">
+            <span class="switch-label">Switch Role Portal:</span>
+            <a th:href="@{/dashboard/resident}" class="role-tab" th:classappend="${role == 'resident'} ? 'active' : ''">🎓 Resident Portal</a>
+            <a th:href="@{/dashboard/staff}" class="role-tab" th:classappend="${role == 'staff'} ? 'active' : ''">🔧 Maintenance Staff</a>
+            <a th:href="@{/dashboard/warden}" class="role-tab" th:classappend="${role == 'warden'} ? 'active' : ''">🏛️ Hostel Warden</a>
+        </div>
+
+        <!-- Metrics Grid -->
         <section class="stats-grid">
-            <div class="metric-card">
-                <span>Open</span>
-                <strong th:text="${summary.open}">0</strong>
+            <div class="metric-card metric-open">
+                <div class="metric-icon">📋</div>
+                <div class="metric-data">
+                    <span>Open / New</span>
+                    <strong th:text="${summary.open}">0</strong>
+                </div>
             </div>
-            <div class="metric-card">
-                <span>In Progress</span>
-                <strong th:text="${summary.inProgress}">0</strong>
+            <div class="metric-card metric-progress">
+                <div class="metric-icon">⚙️</div>
+                <div class="metric-data">
+                    <span>In Progress</span>
+                    <strong th:text="${summary.inProgress}">0</strong>
+                </div>
             </div>
-            <div class="metric-card">
-                <span>Resolved</span>
-                <strong th:text="${summary.resolved}">0</strong>
+            <div class="metric-card metric-resolved">
+                <div class="metric-icon">✅</div>
+                <div class="metric-data">
+                    <span>Resolved</span>
+                    <strong th:text="${summary.resolved}">0</strong>
+                </div>
             </div>
             <div class="metric-card danger">
-                <span>Overdue</span>
-                <strong th:text="${summary.overdue}">0</strong>
+                <div class="metric-icon">⚠️</div>
+                <div class="metric-data">
+                    <span>Overdue (>5 Days)</span>
+                    <strong th:text="${summary.overdue}">0</strong>
+                </div>
             </div>
         </section>
 
-        <section class="notice-panel" style="margin-top: 28px;">
-            <div class="notice-header">
-                <p class="eyebrow">Hostel service board</p>
-                <h2>Quick notices</h2>
+        <!-- Category Breakdown Cards (Plumbing, Electrical, Cleaning) -->
+        <section class="category-summary-row" th:if="${role != 'resident'}">
+            <div class="category-summary-card cat-plumbing-card">
+                <div class="cat-card-header">
+                    <span class="cat-pill">🚰 Plumbing</span>
+                    <strong th:text="${summary.plumbing}">0</strong>
+                </div>
+                <p>Taps, pipes, flush, drainage, water supply issues</p>
+                <a th:href="@{'/dashboard/' + ${role} + '?category=Plumbing'}" class="cat-filter-btn">Filter Plumbing →</a>
             </div>
-            <ul class="notice-list">
-                <li>Water tank cleaning scheduled for Friday 7:00 AM.</li>
-                <li>Lift maintenance check is planned for Tuesday evening.</li>
-                <li>Residents are requested to report room issues before 5:00 PM for same-day review.</li>
-            </ul>
+
+            <div class="category-summary-card cat-electrical-card">
+                <div class="cat-card-header">
+                    <span class="cat-pill">⚡ Electrical</span>
+                    <strong th:text="${summary.electrical}">0</strong>
+                </div>
+                <p>Fans, lights, power sockets, switchboards, MCB</p>
+                <a th:href="@{'/dashboard/' + ${role} + '?category=Electrical'}" class="cat-filter-btn">Filter Electrical →</a>
+            </div>
+
+            <div class="category-summary-card cat-cleaning-card">
+                <div class="cat-card-header">
+                    <span class="cat-pill">🧹 Cleaning</span>
+                    <strong th:text="${summary.cleaning}">0</strong>
+                </div>
+                <p>Washroom hygiene, room sanitization, corridor dustbins</p>
+                <a th:href="@{'/dashboard/' + ${role} + '?category=Cleaning'}" class="cat-filter-btn">Filter Cleaning →</a>
+            </div>
         </section>
 
-        <section class="table-card" style="margin-top: 28px;">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Resident</th>
-                        <th>Category</th>
-                        <th>Status</th>
-                        <th>Age</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="complaint : ${complaints}">
-                        <td>
-                            <span th:text="${complaint.residentName}">Aisha</span>
-                            <span class="overdue-badge" th:if="${complaint.overdue}">Overdue</span>
-                        </td>
-                        <td th:text="${complaint.category}">Plumbing</td>
-                        <td><span class="badge" th:text="${complaint.statusLabel}">Open</span></td>
-                        <td th:text="${complaint.daysOpen + 'd'}">2d</td>
-                        <td>
-                            <a th:href="@{'/complaints/' + ${complaint.id}}">View</a>
-                            <a th:if="${role == 'staff'}" th:href="@{'/complaints/' + ${complaint.id} + '/status'}">Update Status</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Active Filter Indicator -->
+        <div class="filter-indicator-bar" th:if="${selectedCategory != null or selectedStatus != null or selectedView != null}">
+            <span>Active Filter: </span>
+            <strong th:if="${selectedCategory != null}" th:text="'Category: ' + ${selectedCategory}"></strong>
+            <strong th:if="${selectedStatus != null}" th:text="'Status: ' + ${selectedStatus.label}"></strong>
+            <strong th:if="${selectedView == 'open-age'}">Open Issues (Oldest First)</strong>
+            <strong th:if="${selectedView == 'overdue'}">Overdue Issues (>5 Days)</strong>
+            <a th:href="@{'/dashboard/' + ${role}}" class="clear-filter-link">Clear Filter ✕</a>
+        </div>
+
+        <!-- Fast Filter Toggles for Staff & Warden -->
+        <div class="category-pills-row" th:if="${role != 'resident'}" style="margin-bottom: 20px;">
+            <a th:href="@{'/dashboard/' + ${role}}" class="cat-quick-pill" th:classappend="${selectedView == null and selectedCategory == null and selectedStatus == null} ? 'active' : ''">All Tickets</a>
+            <a th:href="@{'/dashboard/' + ${role}(view='open-age')}" class="cat-quick-pill" th:classappend="${selectedView == 'open-age'} ? 'active' : ''">⏱️ Open Issues (Oldest First)</a>
+            <a th:href="@{'/dashboard/' + ${role}(view='overdue')}" class="cat-quick-pill pill-overdue" th:classappend="${selectedView == 'overdue'} ? 'active' : ''">⚠️ Overdue Issues (>5 Days)</a>
+        </div>
+
+        <!-- Complaint Table Card -->
+        <section class="table-card">
+            <div class="table-header">
+                <div>
+                    <h2 th:text="${role == 'resident' ? 'My Submitted Complaints' : (role == 'staff' ? 'Maintenance Service Tasks' : 'All Hostel Complaints')}">Complaints</h2>
+                    <p class="table-caption" th:text="${role == 'resident' ? 'Complaints raised by your room profile.' : 'Track, inspect, and update complaint status.'}"></p>
+                </div>
+                <div class="table-header-meta">
+                    <span class="table-count-badge" th:text="${complaints.size() + ' Total Records'}">0 Records</span>
+                </div>
+            </div>
+
+            <div th:if="${complaints.empty}" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3>No complaints found</h3>
+                <p th:if="${role == 'resident'}">You have not raised any maintenance requests yet.</p>
+                <p th:if="${role != 'resident'}">No complaints match the selected filter criteria.</p>
+                <a class="btn primary" href="/complaints/new" th:if="${role == 'resident'}">+ Raise Your First Complaint</a>
+            </div>
+
+            <div class="table-responsive" th:if="${!complaints.empty}">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Resident</th>
+                            <th>Room</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Age</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="complaint : ${complaints}">
+                            <td class="id-cell" th:text="'#' + ${complaint.id}">#1</td>
+                            <td>
+                                <strong th:text="${complaint.residentName}">Aisha</strong>
+                                <span class="overdue-badge" th:if="${complaint.overdue}">Overdue</span>
+                            </td>
+                            <td>
+                                <span class="room-tag" th:text="${complaint.roomNumber}">Room</span>
+                            </td>
+                            <td>
+                                <span class="cat-pill" th:classappend="${complaint.categoryClass}">
+                                    <span th:text="${complaint.categoryIcon}">🚰</span>
+                                    <span th:text="${complaint.category}">Plumbing</span>
+                                </span>
+                            </td>
+                            <td class="desc-cell" th:text="${#strings.abbreviate(complaint.description, 60)}">Leakage in bathroom</td>
+                            <td>
+                                <span class="badge" th:classappend="${complaint.statusClass}" th:text="${complaint.statusLabel}">Open</span>
+                            </td>
+                            <td>
+                                <span class="age-pill" th:text="${complaint.daysOpen + 'd'}">2d</span>
+                            </td>
+                            <td class="action-cell">
+                                <a class="action-btn action-view" th:href="@{'/complaints/' + ${complaint.id}}">View</a>
+                                <a class="action-btn action-update" th:if="${role == 'staff'}" th:href="@{'/complaints/' + ${complaint.id} + '/status'}">Update Status</a>
+                                <a class="action-btn action-update" th:if="${role == 'warden'}" th:href="@{'/complaints/' + ${complaint.id} + '/status'}">Update Status</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
     </main>
 </body>

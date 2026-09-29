@@ -2,32 +2,78 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>ResidencyFix | Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResidencyFix | Hostel Portal Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body class="app-shell">
+<body class="app-shell login-bg">
     <main class="login-shell">
-        <section class="login-card">
-            <p class="eyebrow">Welcome back</p>
-            <h1>ResidencyFix access</h1>
-            <form method="post" action="/login">
-                <div class="login-field">
-                    <label for="role">Select role</label>
-                    <select id="role" name="role">
-                        <option th:each="role : ${roleOptions}" th:value="${#strings.toLowerCase(role)}" th:text="${role}"></option>
-                    </select>
+        <div class="login-container">
+            <div class="login-brand-header">
+                <div class="brand-badge-icon">R</div>
+                <h1>ResidencyFix</h1>
+                <p class="brand-tagline">Hostel maintenance workspace</p>
+                <div class="portal-security-chip">Resident · Maintenance · Administration</div>
+            </div>
+
+            <div th:if="${logoutMessage}" class="alert-banner alert-success">
+                <span>✓</span>
+                <span th:text="${logoutMessage}">You have been logged out successfully.</span>
+            </div>
+
+            <div class="login-card">
+                <div class="login-card-header">
+                    <h2>Open your workspace</h2>
+                    <p>Enter your details to continue to hostel operations.</p>
                 </div>
-                <div class="login-field">
-                    <label for="email">Email</label>
-                    <input id="email" name="email" type="email" placeholder="name@residency.com" />
+
+                <form method="post" action="/login" class="custom-login-form">
+                    <div class="login-field">
+                        <label for="role">Workspace</label>
+                        <div class="select-wrapper">
+                            <select id="role" name="role" required>
+                                <option th:each="role : ${roleOptions}" 
+                                        th:value="${#strings.toLowerCase(role)}" 
+                                        th:text="${role}">Resident</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <label for="name">Full name</label>
+                        <input id="name" name="name" type="text" autocomplete="name" placeholder="Your name" required>
+                    </div>
+
+                    <div class="login-field">
+                        <label for="email">Email address <span>(optional)</span></label>
+                        <input id="email" name="email" type="email" autocomplete="email" placeholder="you@hostel.edu">
+                    </div>
+
+                    <div class="login-field">
+                        <label for="room">Room or unit <span>(residents)</span></label>
+                        <input id="room" name="room" type="text" autocomplete="off" placeholder="Block and room number">
+                    </div>
+
+                    <button class="btn primary btn-block" type="submit">
+                        <span>Continue to workspace</span>
+                        <span aria-hidden="true">→</span>
+                    </button>
+                </form>
+
+                <div class="login-card-footer">
+                    <a href="/" class="back-home-link">← Back to ResidencyFix</a>
                 </div>
-                <div class="login-field">
-                    <label for="password">Password</label>
-                    <input id="password" type="password" placeholder="••••••••" />
-                </div>
-                <button class="btn primary" type="submit">Login</button>
-            </form>
-        </section>
+            </div>
+
+            <div class="login-system-features">
+                <div class="sys-feat"><span class="feat-dot dot-blue"></span> Plumbing</div>
+                <div class="sys-feat"><span class="feat-dot dot-amber"></span> Electrical</div>
+                <div class="sys-feat"><span class="feat-dot dot-green"></span> Housekeeping</div>
+            </div>
+        </div>
     </main>
 </body>
 </html>

@@ -1,13 +1,7 @@
 package com.residencyfix.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -53,6 +47,22 @@ public class Complaint {
 
     private LocalDateTime updatedAt;
 
+    // Relationships suggested in problem statement
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "resident_id")
+    @JsonIgnoreProperties("complaints")
+    private Resident resident;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    @JsonIgnoreProperties("complaints")
+    private Category categoryEntity;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "staff_id")
+    @JsonIgnoreProperties("assignedComplaints")
+    private Staff assignedStaff;
+
     public Complaint() {
         this.createdAt = LocalDateTime.now();
         this.status = ComplaintStatus.NEW;
@@ -67,6 +77,9 @@ public class Complaint {
     }
 
     public String getResidentName() {
+        if (resident != null && (residentName == null || residentName.isBlank())) {
+            return resident.getName();
+        }
         return residentName;
     }
 
@@ -75,6 +88,9 @@ public class Complaint {
     }
 
     public String getRoomNumber() {
+        if (resident != null && (roomNumber == null || roomNumber.isBlank())) {
+            return resident.getRoomNumber();
+        }
         return roomNumber;
     }
 
@@ -83,6 +99,9 @@ public class Complaint {
     }
 
     public String getCategory() {
+        if (categoryEntity != null && (category == null || category.isBlank())) {
+            return categoryEntity.getName();
+        }
         return category;
     }
 
@@ -130,8 +149,43 @@ public class Complaint {
         this.updatedAt = updatedAt;
     }
 
+    public Resident getResident() {
+        return resident;
+    }
+
+    public void setResident(Resident resident) {
+        this.resident = resident;
+        if (resident != null) {
+            this.residentName = resident.getName();
+            if (this.roomNumber == null || this.roomNumber.isBlank()) {
+                this.roomNumber = resident.getRoomNumber();
+            }
+        }
+    }
+
+    public Category getCategoryEntity() {
+        return categoryEntity;
+    }
+
+    public void setCategoryEntity(Category categoryEntity) {
+        this.categoryEntity = categoryEntity;
+        if (categoryEntity != null) {
+            this.category = categoryEntity.getName();
+        }
+    }
+
+    public Staff getAssignedStaff() {
+        return assignedStaff;
+    }
+
+    public void setAssignedStaff(Staff assignedStaff) {
+        this.assignedStaff = assignedStaff;
+    }
+
+    // Auto-flag complaints open for more than 5 days as overdue (PS Requirement)
     public boolean isOverdue() {
         return status != ComplaintStatus.RESOLVED
+                && status != ComplaintStatus.REJECTED
                 && createdAt != null
                 && createdAt.isBefore(LocalDateTime.now().minusDays(5));
     }
@@ -145,5 +199,45 @@ public class Complaint {
 
     public String getStatusLabel() {
         return status == null ? "Open" : status.getLabel();
+    }
+
+    public String getStatusClass() {
+        if (status == null) return "badge-new";
+        return switch (status) {
+            case NEW -> "badge-new";
+            case IN_PROGRESS -> "badge-progress";
+            case RESOLVED -> "badge-resolved";
+            case REJECTED -> "badge-rejected";
+        };
+    }
+
+    public String getCategoryIcon() {
+        if (category == null) return "📋";
+        return switch (category.toLowerCase()) {
+            case "plumbing" -> "🚰";
+            case "electrical" -> "⚡";
+            case "cleaning" -> "🧹";
+            default -> "📋";
+        };
+    }
+
+    public String getCategoryClass() {
+        if (category == null) return "cat-other";
+        return switch (category.toLowerCase()) {
+            case "plumbing" -> "cat-plumbing";
+            case "electrical" -> "cat-electrical";
+            case "cleaning" -> "cat-cleaning";
+            default -> "cat-other";
+        };
+    }
+
+    public int getStatusStepOrder() {
+        if (status == null) return 1;
+        return switch (status) {
+            case NEW -> 1;
+            case IN_PROGRESS -> 2;
+            case RESOLVED -> 3;
+            case REJECTED -> 4;
+        };
     }
 }

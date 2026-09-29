@@ -2,18 +2,32 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>ResidencyFix | Complaints</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResidencyFix | Maintenance Requests</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-shell">
     <header class="topbar">
         <div class="container nav">
-            <div class="brand">ResidencyFix</div>
-            <nav>
-                <a href="/dashboard/resident">Dashboard</a>
-                <a href="/complaints">My Complaints</a>
-                <a href="/complaints/new">Raise Complaint</a>
-                <a href="/login">Logout</a>
+            <div class="brand-wrap">
+                <a href="/" class="brand-link">
+                    <div class="brand-mark"></div>
+                    <span class="brand-text">ResidencyFix</span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <a th:href="${role == 'staff'} ? '/dashboard/staff' : (${role == 'warden'} ? '/dashboard/warden' : '/dashboard/resident')">Dashboard</a>
+                <a href="/complaints" class="active">Complaint Queue</a>
+                <a href="/complaints/new" th:if="${role != 'staff'}">Raise Complaint</a>
+                <a href="/profile">Profile</a>
+                <div class="user-role-badge" th:classappend="'role-' + ${role}">
+                    <span class="dot"></span>
+                    <span th:text="${role == 'staff' ? 'Staff' : (role == 'warden' ? 'Warden' : 'Resident')}">Resident</span>
+                </div>
+                <a href="/logout" class="nav-logout-btn">Logout</a>
             </nav>
         </div>
     </header>
@@ -21,61 +35,127 @@
     <main class="container page">
         <div class="page-header">
             <div>
-                <p class="eyebrow">Complaint management</p>
-                <h1>Resident and staff complaint queue</h1>
+                <p class="eyebrow">Central Tracking Queue</p>
+                <h1>Hostel Maintenance Complaints</h1>
+                <p class="header-subtext">Track, search, and manage room service tickets across Plumbing, Electrical, and Cleaning categories.</p>
             </div>
-            <a class="btn primary" href="/complaints/new">New Complaint</a>
+            <div class="header-actions">
+                <a class="btn primary" href="/complaints/new" th:if="${role != 'staff'}">+ Raise Complaint</a>
+            </div>
         </div>
 
-        <form class="filter-bar" method="get" action="/complaints">
-            <select name="status">
-                <option value="">All Statuses</option>
-                <option th:each="s : ${statuses}"
-                        th:value="${s}"
-                        th:text="${s.label}"
-                        th:selected="${s == selectedStatus}">
-                </option>
-            </select>
-            <input type="text" name="search" th:value="${search}" placeholder="Search resident name..." />
-            <button type="submit" class="btn secondary">Filter</button>
-        </form>
+        <!-- Filter & Search Controls -->
+        <section class="filter-panel">
+            <form class="filter-bar" method="get" action="/complaints">
+                <div class="filter-field">
+                    <label>Category</label>
+                    <select name="category">
+                        <option value="">All Categories (Plumbing, Electrical, Cleaning)</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat}"
+                                th:text="${(cat == 'Plumbing' ? '🚰 ' : (cat == 'Electrical' ? '⚡ ' : '🧹 ')) + cat}"
+                                th:selected="${cat == selectedCategory}">
+                        </option>
+                    </select>
+                </div>
 
+                <div class="filter-field">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="">All Statuses</option>
+                        <option th:each="s : ${statuses}"
+                                th:value="${s}"
+                                th:text="${s.label}"
+                                th:selected="${s == selectedStatus}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="filter-field search-field">
+                    <label>Search Resident / Room</label>
+                    <input type="text" name="search" th:value="${search}" placeholder="Search name, room or keyword..." />
+                </div>
+
+                <div class="filter-buttons">
+                    <button type="submit" class="btn primary">Filter</button>
+                    <a href="/complaints" class="btn secondary">Reset</a>
+                </div>
+            </form>
+        </section>
+
+        <!-- Category Fast-Filter Buttons -->
+        <div class="category-pills-row">
+            <a th:href="@{/complaints}" class="cat-quick-pill" th:classappend="${selectedCategory == null or selectedCategory == ''} ? 'active' : ''">All Requests</a>
+            <a th:href="@{/complaints(category='Plumbing')}" class="cat-quick-pill pill-plumbing" th:classappend="${selectedCategory == 'Plumbing'} ? 'active' : ''">🚰 Plumbing</a>
+            <a th:href="@{/complaints(category='Electrical')}" class="cat-quick-pill pill-electrical" th:classappend="${selectedCategory == 'Electrical'} ? 'active' : ''">⚡ Electrical</a>
+            <a th:href="@{/complaints(category='Cleaning')}" class="cat-quick-pill pill-cleaning" th:classappend="${selectedCategory == 'Cleaning'} ? 'active' : ''">🧹 Cleaning</a>
+        </div>
+
+        <!-- Complaints Table Card -->
         <div class="table-card">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Resident</th>
-                        <th>Room</th>
-                        <th>Category</th>
-                        <th>Status</th>
-                        <th>Age</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="complaint : ${complaints}">
-                        <td th:text="${complaint.id}">1</td>
-                        <td>
-                            <span th:text="${complaint.residentName}">John</span>
-                            <span class="overdue-badge" th:if="${complaint.overdue}">Overdue</span>
-                        </td>
-                        <td th:text="${complaint.roomNumber}">A-101</td>
-                        <td th:text="${complaint.category}">Plumbing</td>
-                        <td>
-                            <span class="badge status-badge" th:text="${complaint.statusLabel}">Open</span>
-                        </td>
-                        <td th:text="${complaint.daysOpen + 'd'}">0d</td>
-                        <td class="actions-cell">
-                            <a th:href="@{'/complaints/' + ${complaint.id}}">View</a>
-                            <a th:href="@{'/complaints/' + ${complaint.id} + '/edit'}">Edit</a>
-                            <form th:action="@{'/complaints/' + ${complaint.id} + '/delete'}" method="post">
-                                <button type="submit" class="link-btn">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-header">
+                <div>
+                    <h2>Maintenance Log</h2>
+                    <p class="table-caption">Sorted by recent submissions</p>
+                </div>
+                <div class="table-header-meta">
+                    <span class="table-count-badge" th:text="${complaints.size() + ' Total Records'}">0 Records</span>
+                </div>
+            </div>
+
+            <div th:if="${complaints.empty}" class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h3>No complaints match your criteria</h3>
+                <p>Try resetting the category, status, or search filters.</p>
+                <a href="/complaints" class="btn secondary">View All Complaints</a>
+            </div>
+
+            <div class="table-responsive" th:if="${!complaints.empty}">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Resident</th>
+                            <th>Room</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Age</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="complaint : ${complaints}">
+                            <td class="id-cell" th:text="'#' + ${complaint.id}">#1</td>
+                            <td>
+                                <strong th:text="${complaint.residentName}">John</strong>
+                                <span class="overdue-badge" th:if="${complaint.overdue}">Overdue</span>
+                            </td>
+                            <td>
+                                <span class="room-tag" th:text="${complaint.roomNumber}">Room</span>
+                            </td>
+                            <td>
+                                <span class="cat-pill" th:classappend="${complaint.categoryClass}">
+                                    <span th:text="${complaint.categoryIcon}">🚰</span>
+                                    <span th:text="${complaint.category}">Plumbing</span>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${complaint.statusClass}" th:text="${complaint.statusLabel}">Open</span>
+                            </td>
+                            <td>
+                                <span class="age-pill" th:text="${complaint.daysOpen + 'd'}">0d</span>
+                            </td>
+                            <td class="actions-cell">
+                                <a class="action-btn action-view" th:href="@{'/complaints/' + ${complaint.id}}">View</a>
+                                <a class="action-btn action-update" th:if="${role == 'staff' or role == 'warden'}" th:href="@{'/complaints/' + ${complaint.id} + '/status'}">Update Status</a>
+                                <form th:if="${role == 'warden'}" th:action="@{'/complaints/' + ${complaint.id} + '/delete'}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this complaint record?');">
+                                    <button type="submit" class="action-btn action-delete">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 </body>

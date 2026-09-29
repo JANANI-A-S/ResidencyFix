@@ -7,12 +7,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -28,7 +32,9 @@ class ComplaintFlowTest {
 
     @Test
     void residentComplaintFormOnlyContainsTheRequiredFields() throws Exception {
-        mockMvc.perform(get("/complaints/new"))
+        mockMvc.perform(get("/complaints/new")
+                .sessionAttr("residentName", "Morgan Lee")
+                .sessionAttr("userRoom", "B-204"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("complaint-form"))
                 .andExpect(content().string(containsString("Category")))
@@ -36,6 +42,29 @@ class ComplaintFlowTest {
                 .andExpect(content().string(containsString("Description")))
                 .andExpect(content().string(not(containsString("Resident Name"))))
                 .andExpect(content().string(not(containsString("Status"))));
+    }
+
+    @Test
+    void complaintFormRequestsResidentNameWhenNoSessionExists() throws Exception {
+        mockMvc.perform(get("/complaints/new"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Resident Name")));
+    }
+
+    @Test
+    void firstComplaintCreatesResidentWorkspaceSession() throws Exception {
+        MvcResult result = mockMvc.perform(post("/complaints")
+                        .param("residentName", "Taylor Reed")
+                        .param("roomNumber", "C-102")
+                        .param("category", "Plumbing")
+                        .param("description", "A slow leak is visible under the sink."))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl("/dashboard/resident"))
+                .andReturn();
+
+        MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
+        assertEquals("Taylor Reed", session.getAttribute("residentName"));
+        assertEquals("C-102", session.getAttribute("userRoom"));
     }
 
     @Test

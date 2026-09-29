@@ -2,39 +2,104 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>ResidencyFix | Complaint Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'ResidencyFix | Request #' + ${complaint.id}">ResidencyFix | Request Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-shell">
     <header class="topbar">
         <div class="container nav">
-            <div class="brand">ResidencyFix</div>
-            <nav>
-                <a href="/dashboard/resident">Dashboard</a>
-                <a href="/complaints">Complaint Log</a>
-                <a href="/complaints/new">Raise Complaint</a>
+            <div class="brand-wrap">
+                <a href="/" class="brand-link">
+                    <div class="brand-mark"></div>
+                    <span class="brand-text">ResidencyFix</span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <a th:href="${role == 'staff'} ? '/dashboard/staff' : (${role == 'warden'} ? '/dashboard/warden' : '/dashboard/resident')">Dashboard</a>
+                <a href="/complaints">Complaint Queue</a>
+                <a href="/complaints/new" th:if="${role != 'staff'}">Raise Complaint</a>
+                <a href="/profile">Profile</a>
+                <a href="/logout" class="nav-logout-btn">Logout</a>
             </nav>
         </div>
     </header>
 
     <main class="container form-page">
         <div class="card details-card">
-            <p class="eyebrow">Case details</p>
-            <h1>Complaint #<span th:text="${complaint.id}"></span></h1>
-            <div class="detail-row"><strong>Resident:</strong> <span th:text="${complaint.residentName}"></span></div>
-            <div class="detail-row"><strong>Room:</strong> <span th:text="${complaint.roomNumber}"></span></div>
-            <div class="detail-row"><strong>Category:</strong> <span th:text="${complaint.category}"></span></div>
-            <div class="detail-row"><strong>Status:</strong> <span class="badge" th:text="${complaint.statusLabel}"></span></div>
-            <div class="detail-row"><strong>Days open:</strong> <span th:text="${complaint.daysOpen + ' days'}"></span></div>
-            <div class="detail-row"><strong>Created:</strong> <span th:text="${#temporals.format(complaint.createdAt, 'dd-MM-yyyy HH:mm')}" ></span></div>
-            <div class="detail-row"><strong>Status note:</strong></div>
-            <p class="description-box" th:text="${complaint.statusNote != null and !#strings.isEmpty(complaint.statusNote) ? complaint.statusNote : 'No staff update note added yet.'}"></p>
-            <div class="detail-row"><strong>Description:</strong></div>
-            <p class="description-box" th:text="${complaint.description}"></p>
+            <div class="details-top">
+                <div>
+                    <p class="eyebrow">Maintenance Ticket Inspection</p>
+                    <h1>Complaint #<span th:text="${complaint.id}">1</span></h1>
+                </div>
+                <div>
+                    <span class="badge" th:classappend="${complaint.statusClass}" th:text="${complaint.statusLabel}">Open</span>
+                    <span class="overdue-badge" th:if="${complaint.overdue}">Overdue (>5 Days)</span>
+                </div>
+            </div>
 
-            <div class="form-actions">
-                <a class="btn primary" th:href="@{'/complaints/' + ${complaint.id} + '/status'}">Update Status</a>
-                <a class="btn secondary" href="/complaints">Back to list</a>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Resident Name</span>
+                    <strong class="detail-val" th:text="${complaint.residentName}">Resident</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Room Number</span>
+                    <strong class="detail-val room-tag" th:text="${complaint.roomNumber}">Room not provided</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Category</span>
+                    <span class="cat-pill" th:classappend="${complaint.categoryClass}">
+                        <span th:text="${complaint.categoryIcon}">🚰</span>
+                        <span th:text="${complaint.category}">Plumbing</span>
+                    </span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Ticket Age</span>
+                    <strong class="detail-val" th:text="${complaint.daysOpen + ' days active'}">2 days active</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Reported On</span>
+                    <span class="detail-val" th:text="${complaint.createdAt != null ? #temporals.format(complaint.createdAt, 'dd MMM yyyy, hh:mm a') : 'Recently'}">28 Sep 2026</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Last Updated</span>
+                    <span class="detail-val" th:text="${complaint.updatedAt != null ? #temporals.format(complaint.updatedAt, 'dd MMM yyyy, hh:mm a') : 'Pending Staff Review'}">28 Sep 2026</span>
+                </div>
+            </div>
+
+            <!-- Issue Description Box -->
+            <div class="issue-section">
+                <h3>Problem Description</h3>
+                <div class="description-card">
+                    <p th:text="${complaint.description}">Detailed complaint description...</p>
+                </div>
+            </div>
+
+            <!-- Staff Maintenance Update & Status Note -->
+            <div class="status-notes-section">
+                <h3>Staff Action &amp; Maintenance Remarks</h3>
+                <div class="status-note-card" th:classappend="${complaint.statusNote != null and !#strings.isEmpty(complaint.statusNote)} ? 'note-present' : 'note-empty'">
+                    <div class="note-icon" th:text="${complaint.statusNote != null and !#strings.isEmpty(complaint.statusNote)} ? '🛠️' : '⏳'">🛠️</div>
+                    <div class="note-content">
+                        <strong th:text="${complaint.statusNote != null and !#strings.isEmpty(complaint.statusNote)} ? 'Latest Update Recorded:' : 'Awaiting Service Review'">Latest Update</strong>
+                        <p th:text="${complaint.statusNote != null and !#strings.isEmpty(complaint.statusNote) ? complaint.statusNote : 'No resolution notes entered yet. Maintenance staff will record actions taken during inspection.'}">No staff update note added yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions details-actions">
+                <a class="btn primary" th:if="${role == 'staff' or role == 'warden'}" th:href="@{'/complaints/' + ${complaint.id} + '/status'}">Update Status</a>
+                <a class="btn secondary" href="/complaints">Back to Complaint Log</a>
+                <a class="btn secondary" th:href="${role == 'staff'} ? '/dashboard/staff' : (${role == 'warden'} ? '/dashboard/warden' : '/dashboard/resident')">Back to Dashboard</a>
             </div>
         </div>
     </main>

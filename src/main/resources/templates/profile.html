@@ -2,32 +2,74 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>ResidencyFix | Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResidencyFix | Workspace Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body class="app-shell">
     <header class="topbar">
         <div class="container nav">
-            <div class="brand">ResidencyFix</div>
-            <nav>
-                <a href="/dashboard/resident">Dashboard</a>
-                <a href="/complaints">Complaints</a>
-                <a href="/profile">Profile</a>
+            <div class="brand-wrap">
+                <a href="/" class="brand-link">
+                    <div class="brand-mark"></div>
+                    <span class="brand-text">ResidencyFix</span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <a th:href="${profileRole == 'Staff'} ? '/dashboard/staff' : (${profileRole == 'Warden'} ? '/dashboard/warden' : '/dashboard/resident')">Dashboard</a>
+                <a href="/complaints">Complaint Queue</a>
+                <a href="/profile" class="active">Profile</a>
+                <a href="/logout" class="nav-logout-btn">Logout</a>
             </nav>
         </div>
     </header>
 
     <main class="container form-page">
-        <div class="card details-card">
-            <p class="eyebrow">Account</p>
-            <h1>Profile</h1>
-            <div class="detail-row"><strong>Name:</strong> <span th:text="${profileName}">Aisha Patel</span></div>
-            <div class="detail-row"><strong>Role:</strong> <span class="badge" th:text="${profileRole}">Resident</span></div>
-            <div class="detail-row"><strong>Residence:</strong> <span th:text="${profileUnit}">Block A / Unit 204</span></div>
-            <div class="detail-row"><strong>Contact:</strong> <span>+65 9123 4567</span></div>
-            <div class="detail-row"><strong>Email:</strong> <span>aisha.patel@residencyfix.com</span></div>
+        <div class="card details-card profile-card">
+            <div class="profile-avatar-header">
+                <div class="profile-avatar" th:text="${profileRole == 'Staff' ? '🔧' : (profileRole == 'Warden' ? '🏛️' : '🎓')}">🎓</div>
+                <div>
+                    <h1 th:text="${profileName}">Resident</h1>
+                    <span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(profileRole)}" th:text="${profileRole}">Resident</span>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Designated Role</span>
+                    <strong class="detail-val" th:text="${profileRole}">Resident</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Assigned Location / Room</span>
+                    <strong class="detail-val room-tag" th:text="${profileUnit}">Not provided</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Institutional Email</span>
+                    <strong class="detail-val" th:text="${profileEmail}">Not provided</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">System Privileges</span>
+                    <span class="detail-val" th:if="${profileRole == 'Resident'}">Submit Plumbing, Electrical, Cleaning complaints; track status.</span>
+                    <span class="detail-val" th:if="${profileRole == 'Staff'}">Inspect tickets, update status (In Progress, Resolved, Rejected), add repair notes.</span>
+                    <span class="detail-val" th:if="${profileRole == 'Warden'}">Administrative hostel oversight, monitor overdue complaints, manage tickets.</span>
+                </div>
+
+                <div class="detail-item">
+                    <span class="detail-label">Session Status</span>
+                    <span class="status-active-pill">Workspace selected</span>
+                </div>
+            </div>
+
             <div class="form-actions">
-                <a class="btn primary" href="/dashboard/resident">Back to dashboard</a>
+                <a class="btn primary" th:href="${profileRole == 'Staff'} ? '/dashboard/staff' : (${profileRole == 'Warden'} ? '/dashboard/warden' : '/dashboard/resident')">Return to Dashboard</a>
+                <a class="btn secondary" href="/login">Switch Role</a>
+                <a class="btn secondary" href="/logout">Logout</a>
             </div>
         </div>
     </main>
